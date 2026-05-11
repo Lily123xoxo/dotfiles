@@ -1,0 +1,11 @@
+// ────────────── Startup Applications ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
+
+    spawn-sh-at-startup "qs -c noctalia-shell"
+    spawn-sh-at-startup "gnome-keyring-daemon --start --components=secrets,pkcs11"
+    spawn-sh-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
+    spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
+    spawn-sh-at-startup "wl-paste --type image --watch cliphist store"
+    spawn-sh-at-startup "xwayland-satellite"
+    spawn-sh-at-startup "kded6"
+    spawn-sh-at-startup "sleep 2 && dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY QT_QPA_PLATFORMTHEME QT_QPA_PLATFORMTHEME_QT6 XDG_MENU_PREFIX XDG_CURRENT_DESKTOP"

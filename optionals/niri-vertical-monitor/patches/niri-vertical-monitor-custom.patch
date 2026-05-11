@@ -1,0 +1,95 @@
+diff --git a/layout-daemon.sh b/layout-daemon.sh
+index 1ed2ec4..7944cdf 100755
+--- a/layout-daemon.sh
++++ b/layout-daemon.sh
+@@ -5,6 +5,7 @@
+ 
+ declare -A target_monitors
+ declare -A processed_windows  # window_id -> workspace_id
++declare -A original_widths    # window_id -> column width as % when first seen on non-target monitor
+ 
+ for monitor in "$@"; do
+     target_monitors["$monitor"]=1
+@@ -24,9 +25,7 @@ while read -r event rest; do
+     # --- Window closed: remove from tracking ---
+     if [[ "$event" == "close" ]]; then
+         wid="$rest"
+-        if [[ -n "${processed_windows[$wid]}" ]]; then
+-            unset "processed_windows[$wid]"
+-        fi
++        unset "processed_windows[$wid]" "original_widths[$wid]"
+         continue
+     fi
+ 
+@@ -36,12 +35,14 @@ while read -r event rest; do
+     # Invalid workspace (window still being mapped)
+     if [[ "$wsid" == "null" || -z "$wsid" ]]; then continue; fi
+ 
++    was_processed=false
+     if [[ -n "${processed_windows[$wid]}" ]]; then
+         if [[ "${processed_windows[$wid]}" == "$wsid" ]]; then
+             # Same workspace → notification/title changed. Ignore.
+             continue
+         else
+             # Changed workspace → reprocess
++            was_processed=true
+             unset "processed_windows[$wid]"
+         fi
+     fi
+@@ -50,13 +51,43 @@ while read -r event rest; do
+     output=$(niri msg --json workspaces 2>/dev/null | jq -r ".[] | select(.id == $wsid) | .output // empty")
+     [[ -z "$output" ]] && continue
+ 
++    # ── vert -> hori: capture original width when window first appears on widescreen ──
++    if [[ -z "${target_monitors[$output]}" && -z "${original_widths[$wid]+x}" ]]; then
++        tile_w=$(niri msg --json windows 2>/dev/null | jq -r ".[] | select(.id == $wid) | .layout.tile_size[0] // empty")
++        out_w=$(niri msg --json outputs 2>/dev/null | jq -r ".[] | select(.name == \"$output\") | .logical.width // empty")
++        if [[ -n "$tile_w" && -n "$out_w" ]]; then
++            original_widths[$wid]=$(awk "BEGIN { printf \"%.0f\", ($tile_w / $out_w) * 100 }")
++        fi
++    fi
++    # ── end capture ──
++
+     # Applies only to configured monitors
+     if [[ -n "${target_monitors[$output]}" ]]; then
+         sleep 0.2
+         niri msg action focus-window --id "$wid" 2>/dev/null
+         niri msg action consume-or-expel-window-left 2>/dev/null
++        niri msg action set-column-width "100%" 2>/dev/null
+         processed_windows[$wid]="$wsid"
+         echo "[niri-layout] Layout applied: window $wid → $output (workspace $wsid)"
++
++    # ── vert -> hori: resize and reposition window when moving to widescreen ──
++    elif [[ "$was_processed" == true ]]; then
++        sleep 0.2
++        prev_output=$(niri msg --json focused-output 2>/dev/null | jq -r '.name // empty')
++        niri msg action focus-window --id "$wid" 2>/dev/null
++        niri msg action reset-window-height 2>/dev/null
++        # restore original column width as percentage (kept for future round-trips)
++        if [[ -n "${original_widths[$wid]}" ]]; then
++            niri msg action set-column-width "${original_widths[$wid]}%" 2>/dev/null
++        else
++            niri msg action set-column-width "33%" 2>/dev/null
++        fi
++        niri msg action focus-column-left 2>/dev/null
++        if [[ -n "$prev_output" ]]; then
++            niri msg action focus-monitor "$prev_output" 2>/dev/null
++        fi
++        echo "[niri-layout] Reset applied: window $wid → $output (workspace $wsid)"
++    # ── end vert -> hori ──
+     fi
+ 
+ done < <(niri msg --json event-stream 2>/dev/null | jq --unbuffered -r '
+diff --git a/settings.json b/settings.json
+index fc1b47f..59cba1b 100644
+--- a/settings.json
++++ b/settings.json
+@@ -1,6 +1,6 @@
+ {
+-  "enabled": false,
++  "enabled": true,
+   "monitors": [
+-
++    "DP-2"
+   ]
+ }

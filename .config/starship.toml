@@ -1,0 +1,14 @@
+# Directory
+[directory]
+truncation_length = 3
+
+# Prompt symbol
+[character]
+success_symbol = "[❯](bold #7d7abc)"
+error_symbol = "[❯](bold #e88388)"
+
+# Command duration
+[cmd_duration]
+min_time = 3_000
+format = "took [$duration](bold yellow) "
+

@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "monitors": [
+    "DP-2"
+  ]
+}

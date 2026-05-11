@@ -1,0 +1,25 @@
+// ────────────── Output Configuration ──────────────
+// You can run `niri msg outputs` to get the correct name for your displays.
+// You will have to remove "/-" and edit it before it takes effect.
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
+
+output "DP-1" {
+    mode "3440x1440@99.997"
+    scale 1
+    position x=0 y=0
+}
+
+workspace "Pre-Cardge" {
+    open-on-output "DP-1"
+}
+
+workspace "Cardge" {
+    open-on-output "DP-1"
+}
+
+output "DP-2" {
+    mode "2560x1440@144.000"
+    scale 1
+    transform "90"
+    position x=3440 y=-950
+}

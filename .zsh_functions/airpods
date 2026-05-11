@@ -1,0 +1,33 @@
+airpods() {
+  local mac="08:FF:44:56:73:77"
+  local scan_log=$(mktemp)
+
+  bluetoothctl disconnect "$mac" 2>/dev/null
+  bluetoothctl remove "$mac" 2>/dev/null
+
+  echo "Hold the Digital Crown until the light flashes white."
+  echo "Scanning for Lily's Airpods Max..."
+
+  bluetoothctl --timeout 60 scan on > "$scan_log" 2>&1 &
+  local scan_pid=$!
+
+  for i in {1..60}; do
+    if grep -qi "$mac" "$scan_log"; then
+      echo "Found! Connecting..."
+      kill "$scan_pid" 2>/dev/null
+      wait "$scan_pid" 2>/dev/null
+      sleep 2
+      bluetoothctl pair "$mac"
+      bluetoothctl trust "$mac"
+      bluetoothctl connect "$mac"
+      rm -f "$scan_log"
+      return
+    fi
+    sleep 1
+  done
+
+  kill "$scan_pid" 2>/dev/null
+  wait "$scan_pid" 2>/dev/null
+  rm -f "$scan_log"
+  echo "Airpods not found after 60 seconds."
+}

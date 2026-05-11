@@ -1,0 +1,50 @@
+    window-rule {
+        geometry-corner-radius 16 // Set every window radius to 20
+        clip-to-geometry true
+    }
+
+    window-rule {
+        match app-id=r#"^steam$"# title=r#"^[Ss]team$"#
+        open-on-output "DP-2"
+    }
+
+    window-rule {
+        match title="Battle.net"
+        open-on-output "DP-2"
+    }
+
+    window-rule {
+        match app-id="steam"
+        exclude title=r#"^[Ss]team$"#
+        exclude app-id="steam_app_4090871665"   // Battle.net and all its subprocesses
+    }
+
+    window-rule {
+        match app-id="steam_app_4090871665"
+        open-floating false
+        open-fullscreen false
+        default-column-width { proportion 0.67; }
+        open-on-workspace "Cardge"
+    }
+
+    window-rule {
+       match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+       default-floating-position x=10 y=10 relative-to="bottom-right"
+       open-focused false
+    }
+
+    window-rule {
+        match app-id="org.kde.dolphin"
+        open-floating true
+        default-column-width { proportion 0.33; }
+    }
+
+    window-rule {
+        match app-id="kitty"
+        default-column-width { proportion 0.33; }
+    }
+
+    layer-rule {
+        match namespace="^noctalia-wallpaper*"
+        place-within-backdrop true
+    }

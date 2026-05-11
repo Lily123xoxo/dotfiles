@@ -1,0 +1,6 @@
+# Reboot to Windows (one-time, Linux stays default)
+alias win11='sudo efibootmgr --bootnext 0000 && sudo reboot'
+alias ll='ls -la'
+alias chrome='setsid google-chrome-stable'
+alias logout="[[ -o login ]] && logout || qdbus6 org.kde.Shutdown /Shutdown logout"
+alias leetclaude='cd ~/programming/python/leetcode && claude'

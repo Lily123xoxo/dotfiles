@@ -23,6 +23,10 @@
         match app-id="steam_app_4090871665"
         open-floating false
         open-fullscreen false
+    }
+
+    window-rule {
+        match app-id="steam_app_4090871665" title="Hearthstone"
         default-column-width { proportion 0.67; }
         open-on-workspace "Cardge"
     }
@@ -34,14 +38,12 @@
     }
 
     window-rule {
-        match app-id="org.kde.dolphin"
+        match app-id="org.gnome.Nautilus"
         open-floating true
-        default-column-width { proportion 0.33; }
     }
 
     window-rule {
         match app-id="kitty"
-        default-column-width { proportion 0.33; }
     }
 
     layer-rule {

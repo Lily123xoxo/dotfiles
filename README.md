@@ -39,12 +39,12 @@ Dual monitor setup:
 
 ### XDG portals
 
-Portal backends are mixed because Niri doesn't have its own portal implementation:
+Portal backends are GNOME/GTK only:
 
 | Portal | Backend | Why |
 |---|---|---|
 | Default | GNOME (`xdg-desktop-portal-gnome`) | Best general Wayland compatibility |
-| File chooser | KDE (`xdg-desktop-portal-kde`) | KDE's file picker is significantly better |
+| Fallback | GTK (`xdg-desktop-portal-gtk`) | File chooser, app chooser |
 | Secrets | gnome-keyring | Session keyring, started via PAM + niri autostart |
 
 Portal config lives in `.config/xdg-desktop-portal/niri-portals.conf`.
@@ -53,17 +53,21 @@ Portal config lives in `.config/xdg-desktop-portal/niri-portals.conf`.
 
 gnome-keyring is started at login via PAM (`pam_gnome_keyring.so`) and again in Niri's autostart for the secrets/pkcs11 components. This provides the `org.freedesktop.secrets` D-Bus interface that apps like Chrome and VS Code use for credential storage.
 
-### Qt/KDE integration
+### Login manager: greetd + tuigreet
 
-Even though this isn't a KDE session, Qt apps are configured to use KDE theming via `environment.d`:
+[greetd](https://sr.ht/~kennylevinsen/greetd/) with [tuigreet](https://github.com/apognu/tuigreet) as the TUI greeter. Config at `/etc/greetd/config.toml`. Custom color theme applied via `--theme` flag.
+
+### Qt theming: Kvantum
+
+Qt apps use Kvantum for theming via niri environment variables:
 
 ```
 QT_QPA_PLATFORM=wayland
-QT_QPA_PLATFORMTHEME=kde
-XDG_MENU_PREFIX=plasma-
+QT_QPA_PLATFORMTHEME=kvantum
+QT_QPA_PLATFORMTHEME_QT6=kvantum
 ```
 
-KDE Plasma is also installed for its login/splash screen (SDDM + KDE splash).
+Kate is kept as a standalone KDE Frameworks app (kf6 libs only, no Plasma desktop stack).
 
 ### Terminal: Kitty
 
@@ -92,7 +96,7 @@ GTK 3 and 4 are themed via Noctalia-generated CSS. Cursor theme is Catppuccin Mo
 ~/.config/kitty/                  # Kitty terminal config + themes
 ~/.config/rofi/                   # Rofi launcher config + tokyo theme
 ~/.config/starship.toml           # Starship prompt config
-~/.config/environment.d/          # Session environment variables (Qt/KDE theming)
+~/.config/environment.d/          # Session environment variables (Qt/Kvantum theming)
 ~/.config/xdg-desktop-portal/     # Portal backend preferences
 ~/.config/fontconfig/             # Font rendering config
 ~/.config/gtk-3.0/                # GTK3 theme + settings

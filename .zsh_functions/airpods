@@ -5,6 +5,11 @@ airpods() {
   bluetoothctl disconnect "$mac" 2>/dev/null
   bluetoothctl remove "$mac" 2>/dev/null
 
+  bluetoothctl power off
+  sleep 3
+  bluetoothctl power on
+  sleep 3
+
   echo "Hold the Digital Crown until the light flashes white."
   echo "Scanning for Lily's Airpods Max..."
 
@@ -13,14 +18,20 @@ airpods() {
 
   for i in {1..60}; do
     if grep -qi "$mac" "$scan_log"; then
-      echo "Found! Connecting..."
+      echo "Found! Pairing..."
       kill "$scan_pid" 2>/dev/null
       wait "$scan_pid" 2>/dev/null
-      sleep 2
-      bluetoothctl pair "$mac"
       bluetoothctl trust "$mac"
-      bluetoothctl connect "$mac"
+      for attempt in {1..30}; do
+        if bluetoothctl pair "$mac" 2>/dev/null && bluetoothctl connect "$mac" 2>/dev/null; then
+          echo "Connected!"
+          rm -f "$scan_log"
+          return
+        fi
+        sleep 2
+      done
       rm -f "$scan_log"
+      echo "Found but couldn't pair/connect after 60 seconds."
       return
     fi
     sleep 1

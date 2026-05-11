@@ -4,3 +4,4 @@ alias ll='ls -la'
 alias chrome='setsid google-chrome-stable'
 alias logout="[[ -o login ]] && logout || qdbus6 org.kde.Shutdown /Shutdown logout"
 alias leetclaude='cd ~/programming/python/leetcode && claude'
+alias dotfiles='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'

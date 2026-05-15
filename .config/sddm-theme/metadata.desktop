@@ -1,0 +1,10 @@
+[SddmGreeterTheme]
+Name=loafiesgreeter
+Description=
+Author=Lily
+Version=1.0
+Website=
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations

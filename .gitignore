@@ -1,0 +1,11 @@
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+credentials*
+secret*
+*_secret*
+*.credentials
+token.json

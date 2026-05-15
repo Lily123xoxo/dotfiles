@@ -27,3 +27,5 @@ fi
 # Fastfetch on terminal start
 sleep 0.1 && fastfetch
 bindkey "^[[3~" delete-char
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word

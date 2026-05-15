@@ -1,44 +1,32 @@
 airpods() {
   local mac="08:FF:44:56:73:77"
-  local scan_log=$(mktemp)
-
   bluetoothctl disconnect "$mac" 2>/dev/null
   bluetoothctl remove "$mac" 2>/dev/null
 
   bluetoothctl power off
-  sleep 3
+  sleep 1
   bluetoothctl power on
-  sleep 3
+  sleep 2
 
   echo "Hold the Digital Crown until the light flashes white."
   echo "Scanning for Lily's Airpods Max..."
 
-  bluetoothctl --timeout 60 scan on > "$scan_log" 2>&1 &
-  local scan_pid=$!
+  if ! bluetoothctl --timeout 60 scan on 2>&1 | grep -qm1 "$mac"; then
+    echo "Airpods not found after 60 seconds."
+    return 1
+  fi
 
-  for i in {1..60}; do
-    if grep -qi "$mac" "$scan_log"; then
-      echo "Found! Pairing..."
-      kill "$scan_pid" 2>/dev/null
-      wait "$scan_pid" 2>/dev/null
-      bluetoothctl trust "$mac"
-      for attempt in {1..30}; do
-        if bluetoothctl pair "$mac" 2>/dev/null && bluetoothctl connect "$mac" 2>/dev/null; then
-          echo "Connected!"
-          rm -f "$scan_log"
-          return
-        fi
-        sleep 2
-      done
-      rm -f "$scan_log"
-      echo "Found but couldn't pair/connect after 60 seconds."
+  echo "Found! Pairing..."
+  bluetoothctl trust "$mac"
+
+  for attempt in {1..15}; do
+    if bluetoothctl pair "$mac" 2>/dev/null && bluetoothctl connect "$mac" 2>/dev/null; then
+      echo "Connected!"
       return
     fi
-    sleep 1
+    sleep 2
   done
 
-  kill "$scan_pid" 2>/dev/null
-  wait "$scan_pid" 2>/dev/null
-  rm -f "$scan_log"
-  echo "Airpods not found after 60 seconds."
+  echo "Found but couldn't pair/connect after 30 seconds."
+  return 1
 }

@@ -13,7 +13,7 @@ configuration {
 @theme "tokyo"
 
 * {
-    font: "Iosevka Nerd Font 15";
+    font: "monospace 15";
 
     background-color:   transparent;
     text-color:         @fg0;

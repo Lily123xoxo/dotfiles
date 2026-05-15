@@ -86,6 +86,12 @@ binds {
     Mod+Shift+CTRL+S                    { move-window-to-monitor-down; }
     // ─── end vert -> hori ───
 
+    // ─── Move workspace between monitors ───
+    Mod+Shift+CTRL+ALT+L                { move-workspace-to-monitor-right; }
+    Mod+Shift+CTRL+ALT+J                { move-workspace-to-monitor-left; }
+    Mod+Shift+CTRL+ALT+I                { move-workspace-to-monitor-up; }
+    Mod+Shift+CTRL+ALT+K                { move-workspace-to-monitor-down; }
+
     // ─── Workspace Switching ───
     Mod+WheelScrollDown                 cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp                   cooldown-ms=150 { focus-workspace-up; }

@@ -26,8 +26,74 @@ Rectangle {
     property color accentColor: '#f2cbbb'
     property color buttonHoverColor: '#b44549'
     property int highlightFadeOut: 400
-    property real textHoverScale: 1.2
+    property real iconHoverScale: 1.1
     property int selectedUserIndex: 0
+
+    component IconButton: Rectangle {
+        property string iconSource
+        property string label
+        signal clicked()
+
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        radius: fieldRadius
+        border.width: borderWidth
+        border.color: "transparent"
+        color: "transparent"
+
+        states: State {
+            name: "hovered"; when: mouseArea.containsMouse
+            PropertyChanges { target: this; border.color: buttonHoverColor }
+            PropertyChanges { target: overlay; scale: iconHoverScale }
+        }
+
+        transitions: [
+            Transition {
+                from: ""; to: "hovered"
+                ColorAnimation { duration: 0 }
+                NumberAnimation { property: "scale"; duration: 0 }
+            },
+            Transition {
+                from: "hovered"; to: ""
+                ColorAnimation { duration: highlightFadeOut }
+                NumberAnimation { property: "scale"; duration: 800; easing.type: Easing.OutBack }
+            }
+        ]
+
+        Image {
+            id: icon
+            source: iconSource
+            anchors.centerIn: parent
+            width: iconSize
+            height: iconSize
+            sourceSize: Qt.size(iconSize, iconSize)
+            fillMode: Image.PreserveAspectFit
+            visible: false
+        }
+
+        ColorOverlay {
+            id: overlay
+            anchors.fill: icon
+            source: icon
+            color: textColor
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            text: label
+            color: textColor
+            font.pixelSize: buttonFontSize
+        }
+        
+        MouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: parent.clicked()
+        }
+    }
 
     ListModel { id: errorLog }
 
@@ -423,248 +489,28 @@ Rectangle {
                 anchors.margins: fieldPadding
                 spacing: 10
 
-            Rectangle {
-                id: shutdown
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: fieldRadius
-                border.width: borderWidth
-                border.color: "transparent"
-                color: "transparent"
-
-                states: State {
-                    name: "hovered"; when: shutdownMouse.containsMouse
-                    PropertyChanges { target: shutdown; border.color: buttonHoverColor }
-                    PropertyChanges { target: shutdownOverlay; scale: 1.1 }
-                }
-                transitions: [
-                    Transition {
-                        from: ""; to: "hovered"
-                        ColorAnimation { duration: 0 }
-                        NumberAnimation { property: "scale"; duration: 0 }
-                    },
-                    Transition {
-                        from: "hovered"; to: ""
-                        ColorAnimation { duration: highlightFadeOut }
-                        NumberAnimation { property: "scale"; duration: 800; easing.type: Easing.OutBack }
-                    }
-                ]
-
-                Image {
-                    id: shutdownIcon
-                    source: "assets/lucide/power.svg"
-                    anchors.centerIn: parent
-                    width: iconSize
-                    height: iconSize
-                    sourceSize: Qt.size(iconSize, iconSize)
-                    fillMode: Image.PreserveAspectFit
-                    visible: false
-                }
-                ColorOverlay {
-                    id: shutdownOverlay
-                    anchors.fill: shutdownIcon
-                    source: shutdownIcon
-                    color: textColor
-                }
-                Text {
-                    id: shutdownText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    text: "shutdown"
-                    color: textColor
-                    font.pixelSize: buttonFontSize
-                }
-                MouseArea {
-                    id: shutdownMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: powerOff()
-                }
+            IconButton {
+                iconSource: "assets/lucide/power.svg"
+                label: "shutdown"
+                onClicked: powerOff()
             }
 
-            Rectangle {
-                id: reboot
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: fieldRadius
-                border.width: borderWidth
-                border.color: "transparent"
-                color: "transparent"
-
-                states: State {
-                    name: "hovered"; when: rebootMouse.containsMouse
-                    PropertyChanges { target: reboot; border.color: buttonHoverColor }
-                    PropertyChanges { target: rebootOverlay; scale: 1.1 }
-                }
-                transitions: [
-                    Transition {
-                        from: ""; to: "hovered"
-                        ColorAnimation { duration: 0 }
-                        NumberAnimation { property: "scale"; duration: 0 }
-                    },
-                    Transition {
-                        from: "hovered"; to: ""
-                        ColorAnimation { duration: highlightFadeOut }
-                        NumberAnimation { property: "scale"; duration: 800; easing.type: Easing.OutBack }
-                    }
-                ]
-
-                Image {
-                    id: rebootIcon
-                    source: "assets/lucide/restart.svg"
-                    anchors.centerIn: parent
-                    width: iconSize
-                    height: iconSize
-                    sourceSize: Qt.size(iconSize, iconSize)
-                    fillMode: Image.PreserveAspectFit
-                    visible: false
-                }
-                ColorOverlay {
-                    id: rebootOverlay
-                    anchors.fill: rebootIcon
-                    source: rebootIcon
-                    color: textColor
-                }
-                Text {
-                    id: rebootText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    text: "reboot"
-                    color: textColor
-                    font.pixelSize: buttonFontSize
-                }
-                MouseArea {
-                    id: rebootMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: reboot()
-                }
+            IconButton {
+                iconSource: "assets/lucide/restart.svg"
+                label: "reboot"
+                onClicked: reboot()
             }
 
-            Rectangle {
-                id: sleep
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: fieldRadius
-                border.width: borderWidth
-                border.color: "transparent"
-                color: "transparent"
-
-                states: State {
-                    name: "hovered"; when: sleepMouse.containsMouse
-                    PropertyChanges { target: sleep; border.color: buttonHoverColor }
-                    PropertyChanges { target: sleepOverlay; scale: 1.1 }
-                }
-                transitions: [
-                    Transition {
-                        from: ""; to: "hovered"
-                        ColorAnimation { duration: 0 }
-                        NumberAnimation { property: "scale"; duration: 0 }
-                    },
-                    Transition {
-                        from: "hovered"; to: ""
-                        ColorAnimation { duration: highlightFadeOut }
-                        NumberAnimation { property: "scale"; duration: 800; easing.type: Easing.OutBack }
-                    }
-                ]
-
-                Image {
-                    id: sleepIcon
-                    source: "assets/lucide/sleep.svg"
-                    anchors.centerIn: parent
-                    width: iconSize
-                    height: iconSize
-                    sourceSize: Qt.size(iconSize, iconSize)
-                    fillMode: Image.PreserveAspectFit
-                    visible: false
-                }
-                ColorOverlay {
-                    id: sleepOverlay
-                    anchors.fill: sleepIcon
-                    source: sleepIcon
-                    color: textColor
-                }
-                Text {
-                    id: sleepText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    text: "sleep"
-                    color: textColor
-                    font.pixelSize: buttonFontSize
-                }
-                MouseArea {
-                    id: sleepMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: suspend()
-                }
+            IconButton {
+                iconSource: "assets/lucide/sleep.svg"
+                label: "sleep"
+                onClicked: suspend()
             }
 
-            Rectangle {
-                id: loginButton
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: fieldRadius
-                border.width: borderWidth
-                border.color: "transparent"
-                color: "transparent"
-
-                states: State {
-                    name: "hovered"; when: loginMouse.containsMouse
-                    PropertyChanges { target: loginButton; border.color: buttonHoverColor }
-                    PropertyChanges { target: loginOverlay; scale: 1.1 }
-                }
-                transitions: [
-                    Transition {
-                        from: ""; to: "hovered"
-                        ColorAnimation { duration: 0 }
-                        NumberAnimation { property: "scale"; duration: 0 }
-                    },
-                    Transition {
-                        from: "hovered"; to: ""
-                        ColorAnimation { duration: highlightFadeOut }
-                        NumberAnimation { property: "scale"; duration: 400; easing.type: Easing.OutBack }
-                    }
-                ]
-
-                Image {
-                    id: loginIcon
-                    source: "assets/lucide/cat.svg"
-                    anchors.centerIn: parent
-                    width: iconSize
-                    height: iconSize
-                    sourceSize: Qt.size(iconSize, iconSize)
-                    fillMode: Image.PreserveAspectFit
-                    visible: false
-                }
-                ColorOverlay {
-                    id: loginOverlay
-                    anchors.fill: loginIcon
-                    source: loginIcon
-                    color: textColor
-                }
-                Text {
-                    id: loginText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    text: "login"
-                    color: textColor
-                    font.pixelSize: buttonFontSize
-                }
-                MouseArea {
-                    id: loginMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: login()
-                }
+            IconButton {
+                iconSource: "assets/lucide/cat.svg"
+                label: "login"
+                onClicked: login()
             }
             }
         }

@@ -1,4 +1,5 @@
 # dotfiles
+NOTE TO SELF: This shit is written by Claude but it will do for now 
 
 Bare git repo dotfiles for CachyOS (Arch-based) with a tiling Wayland compositor setup.
 

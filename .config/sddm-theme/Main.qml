@@ -1,17 +1,30 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects 1.0
 
 // SDDM requires explicit versioning for imports
-// Attribution for SVG loafing cat: <a href="https://www.vecteezy.com/free-vector/cat-loaf">Cat Loaf Vectors by Vecteezy</a>
+/* TODO:
+        Attribution for SVG loafing cat: <a href="https://www.vecteezy.com/free-vector/cat-loaf">Cat Loaf Vectors by Vecteezy</a>
+        Source icons for lock/logout/sleep/shutdown/restart/enter. All should be same style/pack, check:
+            - Lucide
+            - Phosphor
+            - Tabler
+            - Feather
+
+*/
 
 Rectangle {
-    property color backgroundColor: "#000000"
-    property color borderColor: '#666666'
+    property color backgroundColor: "#191011"
+    property color borderColor: '#86695b'
     property int borderWidth: 2
     property int fieldRadius: 20
+    property int fieldPadding: 20
     property int buttonFontSize: 18
-    property color accentColor: '#c94635'
+    property int iconSize: 48
+    property color textColor: '#e0e0e0'
+    property color accentColor: '#f2cbbb'
+    property color buttonHoverColor: '#b44549'
     property int highlightFadeOut: 400
     property real textHoverScale: 1.2
     property int selectedUserIndex: 0
@@ -24,17 +37,27 @@ Rectangle {
 
     Image {
         id: loafFrame
-        source: "loaf-frame.svg"
+        source: "assets/loaf-frame.svg"
         anchors.centerIn: parent
         width: parent.width * 0.9
         height: parent.height * 0.9
         fillMode: Image.PreserveAspectFit
-        opacity: 0.3
+        visible: false
+    }
+
+    ColorOverlay {
+        id: loafOverlay
+        anchors.fill: loafFrame
+        source: loafFrame
+        color: accentColor
+        opacity: 0
+
+        NumberAnimation on opacity { to: 0.5; duration: 1200; easing.type: Easing.InOutQuad }
     }
 
     Rectangle {
 
-        property int formFieldHeight: height * 0.1
+        property int formFieldHeight: height * 0.12
 
         id: mainPanel
 
@@ -43,11 +66,14 @@ Rectangle {
         anchors.verticalCenterOffset: 200
 
         width: loafFrame.paintedWidth * 0.6
-        height: loafFrame.paintedHeight * 0.5
-        radius: 30  
+        height: loafFrame.paintedHeight * 0.47
+        radius: 30
         color: backgroundColor
         border.width: borderWidth
-        border.color: borderColor
+        opacity: 0
+
+        NumberAnimation on opacity { to: 1; duration: 1000; easing.type: Easing.InOutQuad }
+        border.color: "transparent"
 
         Rectangle {
             id: username
@@ -55,15 +81,32 @@ Rectangle {
             anchors.top: mainPanel.top
             anchors.left: mainPanel.left
             anchors.right: consolePanel.left
-            anchors.topMargin: 20
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
+            anchors.topMargin: fieldPadding
+            anchors.leftMargin: fieldPadding
+            anchors.rightMargin: fieldPadding
 
             height: parent.formFieldHeight
             radius: fieldRadius
             border.width: borderWidth
-            border.color: borderColor
+            border.color: usernameField.activeFocus ? accentColor : borderColor
             color: "transparent"
+
+            Behavior on border.color { ColorAnimation { duration: 200 } }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: -implicitHeight / 2
+                text: " user "
+                color: borderColor
+                font.pixelSize: 13
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: backgroundColor
+                    z: -1
+                }
+            }
 
             TextField {
                 id: usernameField
@@ -72,12 +115,14 @@ Rectangle {
                 anchors.margins: 5
 
                 text: userModel.data(userModel.index(0, 0), Qt.UserRole + 1)
-                focus: text === ""
+                Keys.onReturnPressed: passwordField.forceActiveFocus()
 
                 font.pixelSize: 20
-                color: "#FFFFFF"
+                color: activeFocus ? accentColor : "#FFFFFF"
                 verticalAlignment: TextInput.AlignVCenter
                 background: null
+
+                Behavior on color { ColorAnimation { duration: 200 } }
             }
         }
 
@@ -87,15 +132,32 @@ Rectangle {
             anchors.top: username.bottom
             anchors.left: mainPanel.left
             anchors.right: consolePanel.left
-            anchors.topMargin: 20
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
+            anchors.topMargin: fieldPadding
+            anchors.leftMargin: fieldPadding
+            anchors.rightMargin: fieldPadding
 
             height: parent.formFieldHeight
             radius: fieldRadius
             border.width: borderWidth
-            border.color: borderColor
+            border.color: passwordField.activeFocus ? accentColor : borderColor
             color: "transparent"
+
+            Behavior on border.color { ColorAnimation { duration: 200 } }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: -implicitHeight / 2
+                text: " pass "
+                color: borderColor
+                font.pixelSize: 13
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: backgroundColor
+                    z: -1
+                }
+            }
 
             TextField {
                 id: passwordField
@@ -103,17 +165,15 @@ Rectangle {
                 anchors.fill: parent
                 anchors.margins: 5
 
-                placeholderText: "password"
-                placeholderTextColor: '#999999'
-
                 echoMode: TextInput.Password
-                focus: usernameField.text !== ""
                 Keys.onReturnPressed: login()
 
                 font.pixelSize: 20
-                color: "#FFFFFF"
+                color: activeFocus ? accentColor : "#FFFFFF"
                 verticalAlignment: TextInput.AlignVCenter
                 background: null
+
+                Behavior on color { ColorAnimation { duration: 200 } }
             }
         } 
 
@@ -123,7 +183,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.margins: 20
+            anchors.margins: fieldPadding
 
             width: parent.width * 0.4
             radius: fieldRadius
@@ -131,12 +191,29 @@ Rectangle {
             border.color: borderColor
             color: "transparent"
 
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: -implicitHeight / 2
+                text: " sys "
+                color: borderColor
+                font.pixelSize: 13
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: backgroundColor
+                    z: -1
+                }
+            }
+
             Column {
                 id: consoleContent
-                anchors.top: parent.top
+                anchors.bottom: consoleDivider.top
+                anchors.bottomMargin: fieldPadding
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.margins: 15
+                anchors.leftMargin: fieldPadding
+                anchors.rightMargin: fieldPadding
                 spacing: 8
 
                 Text {
@@ -147,7 +224,7 @@ Rectangle {
 
                 Text {
                     id: clockText
-                    text: "> " + Qt.formatDateTime(new Date(), "yyyy-MM-dd hh:mm:ss")
+                    text: "> " + Qt.formatDateTime(new Date(), "dd-MM-yyyy, hh:mm:ss")
                     color: "#ffffff"
                     font.pixelSize: 15
 
@@ -155,22 +232,93 @@ Rectangle {
                         interval: 1000
                         running: true
                         repeat: true
-                        onTriggered: clockText.text = "> " + Qt.formatDateTime(new Date(), "yyyy-MM-dd hh:mm:ss")
+                        onTriggered: clockText.text = "> " + Qt.formatDateTime(new Date(), "dd-MM-yyyy, hh:mm:ss")
                     }
-                }
-
-                ComboBox {
-                    id: sessionSelector
-                    width: parent.width
-                    model: sessionModel
-                    textRole: "name"
                 }
             }
 
+            ComboBox {
+                id: sessionSelector
+                anchors.top: parent.top
+                anchors.topMargin: fieldPadding
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: fieldPadding
+                anchors.rightMargin: fieldPadding
+                height: 40
+                model: sessionModel
+                textRole: "name"
+
+                    contentItem: Item {
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "> " + sessionSelector.displayText
+                            color: (sessionSelector.activeFocus || sessionSelector.hovered) ? accentColor : "#ffffff"
+                            font.pixelSize: 15
+
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                        }
+                        Image {
+                            anchors.right: parent.right
+                            anchors.rightMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "assets/lucide/chevron-down.svg"
+                            width: 16
+                            height: 16
+                            sourceSize: Qt.size(16, 16)
+                            fillMode: Image.PreserveAspectFit
+                        }
+                    }
+
+                    background: Rectangle {
+                        color: "transparent"
+                        border.width: borderWidth
+                        border.color: sessionSelector.activeFocus ? accentColor : borderColor
+                        radius: 10
+
+                        Behavior on border.color { ColorAnimation { duration: 200 } }
+                    }
+
+                    indicator: null
+
+                    popup: Popup {
+                        y: sessionSelector.height
+                        width: sessionSelector.width
+                        padding: 4
+
+                        background: Rectangle {
+                            color: backgroundColor
+                            border.width: borderWidth
+                            border.color: borderColor
+                            radius: 10
+                        }
+
+                        contentItem: ListView {
+                            implicitHeight: contentHeight
+                            model: sessionSelector.popup.visible ? sessionSelector.delegateModel : null
+                            clip: true
+                        }
+                    }
+
+                    delegate: ItemDelegate {
+                        width: sessionSelector.width
+                        highlighted: sessionSelector.highlightedIndex === index
+                        contentItem: Text {
+                            text: "> " + model.name
+                            color: (hovered || highlighted) ? buttonHoverColor : "#ffffff"
+                            font.pixelSize: 15
+                        }
+                        background: Rectangle {
+                            color: "transparent"
+                        }
+                    }
+                }
+
             Rectangle {
                 id: consoleDivider
-                anchors.top: consoleContent.bottom
-                anchors.topMargin: 40
+                y: password.y + password.height - consolePanel.y
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 1
@@ -180,13 +328,13 @@ Rectangle {
             Flickable {
                 id: consoleFlickable
                 anchors.top: consoleDivider.bottom
-                anchors.topMargin: 10
+                anchors.topMargin: fieldPadding
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.leftMargin: 15
-                anchors.rightMargin: 15
-                anchors.bottomMargin: 10
+                anchors.leftMargin: fieldPadding
+                anchors.rightMargin: fieldPadding
+                anchors.bottomMargin: fieldPadding
                 contentHeight: consoleLog.height
                 clip: true
 
@@ -217,9 +365,17 @@ Rectangle {
                     }
 
                     Text {
+                        id: cursorText
                         text: "> _"
                         color: '#929292'
                         font.pixelSize: 15
+
+                        Timer {
+                            interval: 500
+                            running: true
+                            repeat: true
+                            onTriggered: cursorText.visible = !cursorText.visible
+                        }
                     }
                 }
 
@@ -229,18 +385,43 @@ Rectangle {
             }
         }
 
-        RowLayout {
-            id: buttonRow
-            
+        Rectangle {
+            id: buttonContainer
+
+            anchors.top: password.bottom
+            anchors.topMargin: fieldPadding
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: consolePanel.left
-            anchors.bottomMargin: 20
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
+            anchors.bottomMargin: fieldPadding
+            anchors.leftMargin: fieldPadding
+            anchors.rightMargin: fieldPadding
 
-            height: parent.height * 0.5
-            spacing: 10
+            border.width: borderWidth
+            border.color: borderColor
+            radius: fieldRadius
+            color: "transparent"
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: -implicitHeight / 2
+                text: " go "
+                color: borderColor
+                font.pixelSize: 13
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: backgroundColor
+                    z: -1
+                }
+            }
+
+            RowLayout {
+                id: buttonRow
+                anchors.fill: parent
+                anchors.margins: fieldPadding
+                spacing: 10
 
             Rectangle {
                 id: shutdown
@@ -254,8 +435,8 @@ Rectangle {
 
                 states: State {
                     name: "hovered"; when: shutdownMouse.containsMouse
-                    PropertyChanges { target: shutdown; border.color: accentColor; scale: 1.05 }
-                    PropertyChanges { target: shutdownText; scale: textHoverScale }
+                    PropertyChanges { target: shutdown; border.color: buttonHoverColor }
+                    PropertyChanges { target: shutdownOverlay; scale: 1.1 }
                 }
                 transitions: [
                     Transition {
@@ -270,11 +451,29 @@ Rectangle {
                     }
                 ]
 
+                Image {
+                    id: shutdownIcon
+                    source: "assets/lucide/power.svg"
+                    anchors.centerIn: parent
+                    width: iconSize
+                    height: iconSize
+                    sourceSize: Qt.size(iconSize, iconSize)
+                    fillMode: Image.PreserveAspectFit
+                    visible: false
+                }
+                ColorOverlay {
+                    id: shutdownOverlay
+                    anchors.fill: shutdownIcon
+                    source: shutdownIcon
+                    color: textColor
+                }
                 Text {
                     id: shutdownText
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
                     text: "shutdown"
-                    color: "#ffffff"
+                    color: textColor
                     font.pixelSize: buttonFontSize
                 }
                 MouseArea {
@@ -297,8 +496,8 @@ Rectangle {
 
                 states: State {
                     name: "hovered"; when: rebootMouse.containsMouse
-                    PropertyChanges { target: reboot; border.color: accentColor; scale: 1.05 }
-                    PropertyChanges { target: rebootText; scale: textHoverScale }
+                    PropertyChanges { target: reboot; border.color: buttonHoverColor }
+                    PropertyChanges { target: rebootOverlay; scale: 1.1 }
                 }
                 transitions: [
                     Transition {
@@ -313,11 +512,29 @@ Rectangle {
                     }
                 ]
 
+                Image {
+                    id: rebootIcon
+                    source: "assets/lucide/restart.svg"
+                    anchors.centerIn: parent
+                    width: iconSize
+                    height: iconSize
+                    sourceSize: Qt.size(iconSize, iconSize)
+                    fillMode: Image.PreserveAspectFit
+                    visible: false
+                }
+                ColorOverlay {
+                    id: rebootOverlay
+                    anchors.fill: rebootIcon
+                    source: rebootIcon
+                    color: textColor
+                }
                 Text {
                     id: rebootText
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
                     text: "reboot"
-                    color: "#ffffff"
+                    color: textColor
                     font.pixelSize: buttonFontSize
                 }
                 MouseArea {
@@ -340,8 +557,8 @@ Rectangle {
 
                 states: State {
                     name: "hovered"; when: sleepMouse.containsMouse
-                    PropertyChanges { target: sleep; border.color: accentColor; scale: 1.05 }
-                    PropertyChanges { target: sleepText; scale: textHoverScale }
+                    PropertyChanges { target: sleep; border.color: buttonHoverColor }
+                    PropertyChanges { target: sleepOverlay; scale: 1.1 }
                 }
                 transitions: [
                     Transition {
@@ -356,11 +573,29 @@ Rectangle {
                     }
                 ]
 
+                Image {
+                    id: sleepIcon
+                    source: "assets/lucide/sleep.svg"
+                    anchors.centerIn: parent
+                    width: iconSize
+                    height: iconSize
+                    sourceSize: Qt.size(iconSize, iconSize)
+                    fillMode: Image.PreserveAspectFit
+                    visible: false
+                }
+                ColorOverlay {
+                    id: sleepOverlay
+                    anchors.fill: sleepIcon
+                    source: sleepIcon
+                    color: textColor
+                }
                 Text {
                     id: sleepText
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
                     text: "sleep"
-                    color: "#ffffff"
+                    color: textColor
                     font.pixelSize: buttonFontSize
                 }
                 MouseArea {
@@ -383,8 +618,8 @@ Rectangle {
 
                 states: State {
                     name: "hovered"; when: loginMouse.containsMouse
-                    PropertyChanges { target: loginButton; border.color: accentColor; scale: 1.05 }
-                    PropertyChanges { target: loginText; scale: textHoverScale }
+                    PropertyChanges { target: loginButton; border.color: buttonHoverColor }
+                    PropertyChanges { target: loginOverlay; scale: 1.1 }
                 }
                 transitions: [
                     Transition {
@@ -399,11 +634,29 @@ Rectangle {
                     }
                 ]
 
+                Image {
+                    id: loginIcon
+                    source: "assets/lucide/cat.svg"
+                    anchors.centerIn: parent
+                    width: iconSize
+                    height: iconSize
+                    sourceSize: Qt.size(iconSize, iconSize)
+                    fillMode: Image.PreserveAspectFit
+                    visible: false
+                }
+                ColorOverlay {
+                    id: loginOverlay
+                    anchors.fill: loginIcon
+                    source: loginIcon
+                    color: textColor
+                }
                 Text {
                     id: loginText
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
                     text: "login"
-                    color: "#ffffff"
+                    color: textColor
                     font.pixelSize: buttonFontSize
                 }
                 MouseArea {
@@ -413,9 +666,18 @@ Rectangle {
                     onClicked: login()
                 }
             }
+            }
         }
 
     }
+
+    Component.onCompleted: {
+        if (usernameField.text === "")
+            usernameField.forceActiveFocus()
+        else
+            passwordField.forceActiveFocus()
+    }
+
 
 /* Functions go here */
 

@@ -15,6 +15,8 @@ import Qt5Compat.GraphicalEffects 1.0
 */
 
 Rectangle {
+    id: root
+    
     property color backgroundColor: "#191011"
     property color borderColor: '#86695b'
     property int borderWidth: 2
@@ -28,72 +30,6 @@ Rectangle {
     property int highlightFadeOut: 400
     property real iconHoverScale: 1.1
     property int selectedUserIndex: 0
-
-    component IconButton: Rectangle {
-        property string iconSource
-        property string label
-        signal clicked()
-
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        radius: fieldRadius
-        border.width: borderWidth
-        border.color: "transparent"
-        color: "transparent"
-
-        states: State {
-            name: "hovered"; when: mouseArea.containsMouse
-            PropertyChanges { target: this; border.color: buttonHoverColor }
-            PropertyChanges { target: overlay; scale: iconHoverScale }
-        }
-
-        transitions: [
-            Transition {
-                from: ""; to: "hovered"
-                ColorAnimation { duration: 0 }
-                NumberAnimation { property: "scale"; duration: 0 }
-            },
-            Transition {
-                from: "hovered"; to: ""
-                ColorAnimation { duration: highlightFadeOut }
-                NumberAnimation { property: "scale"; duration: 800; easing.type: Easing.OutBack }
-            }
-        ]
-
-        Image {
-            id: icon
-            source: iconSource
-            anchors.centerIn: parent
-            width: iconSize
-            height: iconSize
-            sourceSize: Qt.size(iconSize, iconSize)
-            fillMode: Image.PreserveAspectFit
-            visible: false
-        }
-
-        ColorOverlay {
-            id: overlay
-            anchors.fill: icon
-            source: icon
-            color: textColor
-        }
-
-        Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            text: label
-            color: textColor
-            font.pixelSize: buttonFontSize
-        }
-        
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: parent.clicked()
-        }
-    }
 
     ListModel { id: errorLog }
 
@@ -508,7 +444,7 @@ Rectangle {
             }
 
             IconButton {
-                iconSource: "assets/lucide/cat.svg"
+                iconSource: "assets/lucide/paw-print.svg"
                 label: "login"
                 onClicked: login()
             }

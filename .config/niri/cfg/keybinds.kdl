@@ -149,8 +149,8 @@ binds {
     Mod+D                               { focus-column-right; }
 
     // ─── Screenshots ───
-    Print                               { spawn-sh "grim -g \"$(slurp)\" - | satty -f - --output-filename ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png"; }
-    Shift+Print                         { spawn-sh "grim - | satty -f - --output-filename ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png"; }
+    Print                               { spawn-sh "grim -g \"$(slurp)\" /tmp/screenshot.png && wl-copy < /tmp/screenshot.png && satty -f /tmp/screenshot.png --copy-command wl-copy --output-filename ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png --actions-on-enter save-to-clipboard,exit --actions-on-right-click save-to-file,exit"; }
+    Shift+Print                         { spawn-sh "grim /tmp/screenshot.png && wl-copy < /tmp/screenshot.png && satty -f /tmp/screenshot.png --copy-command wl-copy --output-filename ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png --actions-on-enter save-to-clipboard,exit --actions-on-right-click save-to-file,exit"; }
 
     // ─── Emergency Escape Key ───
     // Use this when a fullscreen app blocks your keybinds.

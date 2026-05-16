@@ -1,9 +1,9 @@
 [SddmGreeterTheme]
 Name=loafiesgreeter
-Description=
-Author=Lily
+Description=Greeter for the loafies theme written in QML by Lily123xoxo.
+Author=Lily123xoxo
 Version=1.0
-Website=
+Website=https://github.com/Lily123xoxo
 Screenshot=preview.png
 MainScript=Main.qml
 ConfigFile=theme.conf

@@ -11,9 +11,10 @@ ShellRoot {
 
     Component.onCompleted: {
         ServiceRegistry.register("theme", Theme)
+        ServiceRegistry.register("hotkeys", Hotkeys)
         console.log("loafies has now started.")
     }
-
+    
     // Transparent layer which every widget maps to for positioning
     PanelWindow {
         id: root
@@ -39,5 +40,9 @@ ShellRoot {
             anchors.rightMargin: 450
             anchors.topMargin: 450
         }
+    }
+
+    Lock {
+        id: lock
     }
 }

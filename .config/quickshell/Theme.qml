@@ -2,6 +2,6 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    property color accentColor: '#ffffff'
-    property string activeFont: "Quicksand"
+    property color accentColor: 'beige'
+    property string activeFont: "sans" // Fallback to global font
 }

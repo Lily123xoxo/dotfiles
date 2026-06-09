@@ -1,7 +1,7 @@
 // ────────────── Startup Applications ──────────────
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
 
-    spawn-sh-at-startup "qs -c noctalia-shell"
+    spawn-sh-at-startup "QT_QPA_PLATFORMTHEME=gtk3 QT_QPA_PLATFORMTHEME_QT6=gtk3 qs -c noctalia-shell"
     spawn-sh-at-startup "gnome-keyring-daemon --start --components=secrets,pkcs11"
     spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
     spawn-sh-at-startup "wl-paste --type image --watch cliphist store"
